@@ -1,4 +1,4 @@
-## QuaqeSpasm 
+## QuakeSpasm 
 
 This is a port for AmigaOS4 
 
