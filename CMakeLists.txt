@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16.3)
 
-project(quake)
+project(quake-spasm)
 
 set(q_source
         bgmusic.c snd_codec.c snd_flac.c snd_wave.c snd_vorbis.c snd_opus.c snd_mp3tag.c
@@ -14,14 +14,14 @@ set(q_source
         sv_main.c sv_move.c sv_phys.c sv_user.c world.c zone.c
 )
 
-add_executable(quake ${q_source})
+add_executable(quake-spasm ${q_source})
 
-target_include_directories(quake PRIVATE . /usr/local/amiga/ppc-amigaos/SDK/include/netinclude)
+target_include_directories(quake-spasm PRIVATE . /usr/local/amiga/ppc-amigaos/SDK/include/netinclude)
 
-target_link_libraries(quake PUBLIC m gl4es SDL2)
+target_link_libraries(quake-spasm PRIVATE m SDL2 gl4es SDL2_gl4es )
 
-target_link_options(quake PRIVATE  -athread=native)
+target_link_options(quake-spasm PRIVATE  -athread=native)
 
-target_compile_options(quake PUBLIC -D__amigaos4__ -DPLATFORM_AMIGA -DUSE_SDL2 -DAMIGA "-D_inline=static __inline" "-D__int64=int64"  -D__stdcall= -DENDIAN_INLINE -DNDEBUG -O3 -fPIC -DSOUND_IMPLEMENTED -DOGG)
+target_compile_options(quake-spasm PUBLIC -DSDL_GL4ES -D__amigaos4__ -DPLATFORM_AMIGA -DUSE_SDL2 -DAMIGA -O3 -fPIC)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX_C "")

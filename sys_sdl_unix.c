@@ -46,13 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 #include "SDL2/SDL.h"
 #endif
-#ifdef AMIGA
-#include <proto/exec.h>
-#include <interfaces/bsdsocket.h>
 
-struct SocketIFace *ISocket = NULL;
-struct Library *SocketBase = NULL;
-#endif
 
 qboolean		isDedicated;
 cvar_t		sys_throttle = {"sys_throttle", "0.02", CVAR_ARCHIVE};
@@ -382,10 +376,6 @@ static void Sys_GetBasedir (char *argv0, char *dst, size_t dstsize)
 void Sys_Init (void)
 {
 
-#ifdef AMIGA
-    SocketBase       = IExec->OpenLibrary("bsdsocket.library", 0L);
-    ISocket          = (struct SocketIFace *)IExec->GetInterface( SocketBase, "main", 1, NULL );
-#endif
 	const char* term = getenv("TERM");
 	stdinIsATTY = isatty(STDIN_FILENO) &&
 			!(term && (!strcmp(term, "raw") || !strcmp(term, "dumb")));
@@ -460,10 +450,6 @@ void Sys_Printf (const char *fmt, ...)
 void Sys_Quit (void)
 {
 	Host_Shutdown();
-#ifdef AMIGA
-    if (ISocket)               IExec->DropInterface((struct Interface *)ISocket);
-    if (SocketBase)            IExec->CloseLibrary(SocketBase);
-#endif
 	exit (0);
 }
 

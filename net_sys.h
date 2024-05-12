@@ -126,7 +126,7 @@ typedef unsigned int	in_addr_t;	/* u_int32_t */
 #define	IOCTLARG_P(x)	(char *) x
 #if defined(__amigaos4__) || defined(PLATFORM_AMIGAOS3)
 #define	inet_ntoa(x) ISocket->Inet_NtoA(x.s_addr) //Inet_NtoA(x.s_addr) /* Inet_NtoA(*(ULONG*)&x) */
-#define	h_errno ISocket->Errno()
+//#define	h_errno ISocket->Errno()
 #endif
 
 #define	NET_EWOULDBLOCK		EWOULDBLOCK

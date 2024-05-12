@@ -160,6 +160,7 @@ void UDP_Listen (qboolean state)
 
 sys_socket_t UDP_OpenSocket (int port)
 {
+    Con_SafePrintf("TODO (UDP_OpenSocket()): Disabled 'ioctlsocket (newsocket, FIONBIO, &_true) == SOCKET_ERROR)' check\n");
 	sys_socket_t newsocket;
 	struct sockaddr_in address;
 	int _true = 1;
@@ -168,12 +169,15 @@ sys_socket_t UDP_OpenSocket (int port)
 	if ((newsocket = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
 	{
 		err = SOCKETERRNO;
-		Con_SafePrintf("UDP_OpenSocket: %s\n", socketerror(err));
+		Con_SafePrintf("UDP_OpenSocket(%d): %s\n", port, socketerror(err));
 		return INVALID_SOCKET;
 	}
 
+/*
+    //FIXME disabled for testing
 	if (ioctlsocket (newsocket, FIONBIO, &_true) == SOCKET_ERROR)
 		goto ErrorReturn;
+*/
 
 	memset(&address, 0, sizeof(struct sockaddr_in));
 	address.sin_family = AF_INET;
@@ -182,11 +186,13 @@ sys_socket_t UDP_OpenSocket (int port)
 	if (bind (newsocket, (struct sockaddr *)&address, sizeof(address)) == 0)
 		return newsocket;
 
-ErrorReturn:
+/*
+ //FIXME disabled for testing
+ ErrorReturn:
 	err = SOCKETERRNO;
-	Con_SafePrintf("UDP_OpenSocket: %s\n", socketerror(err));
+    Con_SafePrintf("UDP_OpenSocket(%d): %s\n", port, socketerror(err));
 	UDP_CloseSocket (newsocket);
-	return INVALID_SOCKET;
+	return INVALID_SOCKET;*/
 }
 
 //=============================================================================

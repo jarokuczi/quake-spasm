@@ -950,7 +950,7 @@ assumes lightmap texture is already bound
 */
 static void R_UploadLightmap(int lmap)
 {
-	const int wide10bits = !!r_lightmapwide.value;
+	const int wide10bits = r_lightmapwide.value != 0;
 	const GLenum type = wide10bits ?
 	    GL_UNSIGNED_INT_10_10_10_2 : GL_UNSIGNED_BYTE;
 	struct lightmap_s *lm = &lightmaps[lmap];
@@ -991,7 +991,7 @@ R_RebuildAllLightmaps -- johnfitz -- called when gl_overbright gets toggled
 */
 void R_RebuildAllLightmaps (void)
 {
-	const int wide10bits = !!r_lightmapwide.value;
+	const int wide10bits = r_lightmapwide.value != 0;
 	const GLenum type = wide10bits ?
 	    GL_UNSIGNED_INT_10_10_10_2 : GL_UNSIGNED_BYTE;
 	int			i, j;

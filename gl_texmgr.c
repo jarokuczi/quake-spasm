@@ -1176,7 +1176,7 @@ TexMgr_LoadLightmap -- handles lightmap data
 */
 static void TexMgr_LoadLightmap (gltexture_t *glt, byte *data)
 {
-	const qboolean wide10bits = !!r_lightmapwide.value;
+	const qboolean wide10bits = r_lightmapwide.value != 0;
 	const GLenum type = wide10bits ? GL_UNSIGNED_INT_10_10_10_2 : GL_UNSIGNED_BYTE;
 	const GLint internalfmt = wide10bits ? GL_RGB10_A2 : lightmap_bytes;
 

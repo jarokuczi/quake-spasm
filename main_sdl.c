@@ -66,9 +66,37 @@ static quakeparms_t	parms;
 #if defined(USE_SDL2) && defined(__APPLE__)
 #define main SDL_main
 #endif
+#ifdef AMIGA
+#include "GL/gl.h"
+#include "GL/glu.h"
+#include "exec/types.h"
+#include "interfaces/exec.h"
+#include "interfaces/ogles2.h"
+#include <proto/exec.h>
+#include <interfaces/bsdsocket.h>
+
+extern struct ExecIFace      *IExec;
+struct Library		  *Ogles2Base    = NULL;
+struct OglesIFace     *IOgles2       = NULL;
+struct SocketIFace *ISocket = NULL;
+struct Library *SocketBase = NULL;
+#endif
 
 int main(int argc, char *argv[])
 {
+
+#ifdef AMIGA
+    IExec = (struct ExecIFace *)(*(struct ExecBase **)4)->MainInterface;
+    Ogles2Base = IExec->OpenLibrary("ogles2.library",0);
+    IOgles2 = (struct IOgles2 *) IExec->GetInterface(Ogles2Base, "main", 1, NULL);
+
+    if (!Ogles2Base) {
+        printf("Can't open ogles2.library");
+        exit(123);
+    }
+    SocketBase       = IExec->OpenLibrary("bsdsocket.library", 0L);
+    ISocket          = (struct SocketIFace *)IExec->GetInterface( SocketBase, "main", 1, NULL );
+#endif
 
 	int		t;
 	double		time, oldtime, newtime;
@@ -154,5 +182,11 @@ int main(int argc, char *argv[])
 
 		oldtime = newtime;
 	}
+#ifdef AMIGA
+    if (IOgles2) {IExec->DropInterface((struct Interface*)IOgles2); IOgles2 = NULL;}
+    if (Ogles2Base) {IExec->CloseLibrary(Ogles2Base); Ogles2Base = NULL;}
+    if (ISocket)               IExec->DropInterface((struct Interface *)ISocket);
+    if (SocketBase)            IExec->CloseLibrary(SocketBase);
+#endif
 	return 0;
 }
