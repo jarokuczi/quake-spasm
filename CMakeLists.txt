@@ -16,12 +16,17 @@ set(q_source
 
 add_executable(quake-spasm ${q_source})
 
-target_include_directories(quake-spasm PRIVATE . /usr/local/amiga/ppc-amigaos/SDK/include/netinclude)
+if (AMIGAOS)
+    target_link_libraries(quake-spasm PRIVATE m SDL2 gl4es SDL2_gl4es )
+    target_include_directories(quake-spasm PRIVATE . /usr/local/amiga/ppc-amigaos/SDK/include/netinclude)
+    target_link_options(quake-spasm PRIVATE  -athread=native)
+    target_compile_options(quake-spasm PUBLIC -DSDL_GL4ES -D__amigaos4__ -DAMIGAOS -DPLATFORM_AMIGA -DUSE_SDL2 -DAMIGA -O3 -fPIC)
+endif ()
 
-target_link_libraries(quake-spasm PRIVATE m SDL2 gl4es SDL2_gl4es )
-
-target_link_options(quake-spasm PRIVATE  -athread=native)
-
-target_compile_options(quake-spasm PUBLIC -DSDL_GL4ES -D__amigaos4__ -DPLATFORM_AMIGA -DUSE_SDL2 -DAMIGA -O3 -fPIC)
+if(MORPHOS)
+    target_link_libraries(quake-spasm PRIVATE SDL2)
+    target_link_options(quake-spasm PRIVATE )
+    target_compile_options(quake-spasm PUBLIC -DPLATFORM_AMIGA -DUSE_SDL2 -DMORPHOS -O3 -noixemul)
+endif()
 
 set (CMAKE_SHARED_LIBRARY_PREFIX_C "")

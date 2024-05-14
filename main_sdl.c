@@ -66,7 +66,7 @@ static quakeparms_t	parms;
 #if defined(USE_SDL2) && defined(__APPLE__)
 #define main SDL_main
 #endif
-#ifdef AMIGA
+#ifdef AMIGAOS
 #include "GL/gl.h"
 #include "GL/glu.h"
 #include "exec/types.h"
@@ -82,10 +82,21 @@ struct SocketIFace *ISocket = NULL;
 struct Library *SocketBase = NULL;
 #endif
 
+#ifdef MORPHOS
+#include "proto/exec.h"
+#include "ppcinline/exec.h"
+
+struct Library *SocketBase = NULL;
+struct Library *MathTransBase = NULL;
+#endif
+
 int main(int argc, char *argv[])
 {
-
-#ifdef AMIGA
+#ifdef MORPHOS
+    SocketBase       = OpenLibrary("bsdsocket.library", 0);
+    MathTransBase       = OpenLibrary("mathtrans.library", 0);
+#endif
+#ifdef AMIGAOS
     IExec = (struct ExecIFace *)(*(struct ExecBase **)4)->MainInterface;
     Ogles2Base = IExec->OpenLibrary("ogles2.library",0);
     IOgles2 = (struct IOgles2 *) IExec->GetInterface(Ogles2Base, "main", 1, NULL);
@@ -182,11 +193,15 @@ int main(int argc, char *argv[])
 
 		oldtime = newtime;
 	}
-#ifdef AMIGA
+#ifdef AMIGAOS
     if (IOgles2) {IExec->DropInterface((struct Interface*)IOgles2); IOgles2 = NULL;}
     if (Ogles2Base) {IExec->CloseLibrary(Ogles2Base); Ogles2Base = NULL;}
     if (ISocket)               IExec->DropInterface((struct Interface *)ISocket);
     if (SocketBase)            IExec->CloseLibrary(SocketBase);
+#endif
+
+#ifdef MORPHOS
+    if (SocketBase)            CloseLibrary(SocketBase);
 #endif
 	return 0;
 }

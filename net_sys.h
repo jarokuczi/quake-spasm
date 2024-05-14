@@ -115,12 +115,17 @@ typedef unsigned long	in_addr_t;	/* u_int32_t */
 typedef unsigned int	in_addr_t;	/* u_int32_t */
 #endif
 #endif
-#ifdef AMIGA
+#ifdef AMIGAOS
 #include "interfaces/bsdsocket.h"
-#endif
 #define	SOCKETERRNO	ISocket->Errno()
 #define	ioctlsocket	ISocket->IoctlSocket
 #define	closesocket	ISocket->CloseSocket
+#endif
+#ifdef MORPHOS
+#define	SOCKETERRNO	errno
+#define	ioctlsocket ioctl
+#define	closesocket	close
+#endif
 #define	selectsocket(_N,_R,_W,_E,_T)		\
 	WaitSelect((_N),(_R),(_W),(_E),(_T),NULL)
 #define	IOCTLARG_P(x)	(char *) x
