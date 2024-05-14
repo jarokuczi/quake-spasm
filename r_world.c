@@ -847,11 +847,11 @@ void GLWorld_CreateShaders (void)
 		"uniform sampler2D Tex;\n"
 		"uniform sampler2D LMTex;\n"
 		"uniform sampler2D FullbrightTex;\n"
-		"uniform bool UseFullbrightTex;\n"
-		"uniform bool UseOverbright;\n"
-		"uniform bool UseAlphaTest;\n"
-		"uniform bool UseLightmapWide;\n"
-		"uniform bool UseLightmapOnly;\n"
+		"uniform mediump int UseFullbrightTex;\n"
+		"uniform mediump int UseOverbright;\n"
+		"uniform mediump int UseAlphaTest;\n"
+		"uniform mediump int UseLightmapWide;\n"
+		"uniform mediump int UseLightmapOnly;\n"
 		"uniform float Alpha;\n"
 		"\n"
 		"varying float FogFragCoord;\n"
@@ -859,16 +859,16 @@ void GLWorld_CreateShaders (void)
 		"void main()\n"
 		"{\n"
 		"	vec4 result = texture2D(Tex, gl_TexCoord[0].xy);\n"
-		"	if (UseLightmapOnly)\n"
+		"	if (UseLightmapOnly!=0)\n"
 		"		result = vec4(0.5, 0.5, 0.5, 1.0);\n"
-		"	if (UseAlphaTest && (result.a < 0.666))\n"
+		"	if (UseAlphaTest!=0 && (result.a < 0.666))\n"
 		"		discard;\n"
 		"	result *= texture2D(LMTex, gl_TexCoord[1].xy);\n"
-		"	if (UseLightmapWide)\n"
+		"	if (UseLightmapWide!=0)\n"
 		"	    result.rgb *= 4.0;\n"
-		"	if (UseOverbright)\n"
+		"	if (UseOverbright!=0)\n"
 		"		result.rgb *= 2.0;\n"
-		"	if (UseFullbrightTex)\n"
+		"	if (UseFullbrightTex!=0)\n"
 		"		result += texture2D(FullbrightTex, gl_TexCoord[0].xy);\n"
 		"	result = clamp(result, 0.0, 1.0);\n"
 		"	float fog = exp(-gl_Fog.density * gl_Fog.density * FogFragCoord * FogFragCoord);\n"
@@ -878,7 +878,7 @@ void GLWorld_CreateShaders (void)
 		"	gl_FragColor = result;\n"
 		"}\n";
 
-	if (!gl_glsl_alias_able)
+    if (!gl_glsl_alias_able)
 		return;
 
 	r_world_program = GL_CreateProgram (vertSource, fragSource, Q_COUNTOF(bindings), bindings);
@@ -1058,7 +1058,7 @@ void R_DrawLightmapChains_GLSL(qmodel_t* model, entity_t* ent, texchain_t chain)
 	GL_Uniform1iFunc(useLightmapWideLoc, wide10bits);
 	GL_Uniform1fFunc(alphaLoc, 1.0f);
 	GL_Uniform1iFunc(useFullbrightTexLoc, 0);
-	GL_Uniform1iFunc(useLightmapOnlyLoc, 1);
+	GL_Uniform1iFunc(useLightmapOnlyLoc, 0);
 
 	R_ClearBatch();
 	lastlightmap = -1;

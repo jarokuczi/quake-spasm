@@ -462,7 +462,6 @@ R_SetupGL
 void R_SetupGL (void)
 {
 	int scale;
-    r_lightmapwide.value=0;
 	//johnfitz -- rewrote this section
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity ();
