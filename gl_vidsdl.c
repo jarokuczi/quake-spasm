@@ -156,7 +156,7 @@ QS_PFNGENERATEMIPMAP GL_GenerateMipmap = NULL;
 static cvar_t	vid_fullscreen = {"vid_fullscreen", "0", CVAR_ARCHIVE};	// QuakeSpasm, was "1"
 static cvar_t	vid_width = {"vid_width", "800", CVAR_ARCHIVE};		// QuakeSpasm, was 640
 static cvar_t	vid_height = {"vid_height", "600", CVAR_ARCHIVE};	// QuakeSpasm, was 480
-static cvar_t	vid_bpp = {"vid_bpp", "24", CVAR_ARCHIVE};
+static cvar_t	vid_bpp = {"vid_bpp", "16", CVAR_ARCHIVE};
 static cvar_t	vid_refreshrate = {"vid_refreshrate", "60", CVAR_ARCHIVE};
 static cvar_t	vid_vsync = {"vid_vsync", "0", CVAR_ARCHIVE};
 static cvar_t	vid_fsaa = {"vid_fsaa", "0", CVAR_ARCHIVE}; // QuakeSpasm
@@ -622,10 +622,13 @@ static qboolean VID_SetMode (int width, int height, int refreshrate, int bpp, qb
 	/* Create the window if needed, hidden */
 	if (!draw_context)
 	{
+#ifdef MORPHOS
+		flags = SDL_WINDOW_OPENGL;
+#else
 		flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
-
 		if (vid_borderless.value)
 			flags |= SDL_WINDOW_BORDERLESS;
+#endif
 
 		draw_context = SDL_CreateWindow (caption, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 		if (!draw_context) { // scale back fsaa
@@ -641,8 +644,12 @@ static qboolean VID_SetMode (int width, int height, int refreshrate, int bpp, qb
 			SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
 			draw_context = SDL_CreateWindow (caption, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 		}
-		if (!draw_context)
+		if (!draw_context) {
+            char error[255];
+            SDL_GetErrorMsg(error, 255);
+            printf("ERROR: %s\n", error);
 			Sys_Error ("Couldn't create window");
+        }
 
 		previous_display = -1;
 	}

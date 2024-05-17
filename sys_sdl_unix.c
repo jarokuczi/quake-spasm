@@ -232,7 +232,11 @@ static int Sys_NumCPUs (void)
 	int numcpus = mpctl(MPC_GETNUMSPUS, NULL, NULL);
 	return numcpus;
 }
-
+#elif defined(AMIGAOS) || defined(MORPHOS)
+static int Sys_NumCPUs (void)
+{
+    return 1;
+}
 #else /* unknown OS */
 static int Sys_NumCPUs (void)
 {

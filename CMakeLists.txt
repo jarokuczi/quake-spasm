@@ -24,6 +24,7 @@ if (AMIGAOS)
 endif ()
 
 if(MORPHOS)
+    target_link_libraries(quake-spasm PRIVATE m)
     target_link_libraries(quake-spasm PRIVATE SDL2)
     target_link_options(quake-spasm PRIVATE )
     target_compile_options(quake-spasm PUBLIC -DPLATFORM_AMIGA -DUSE_SDL2 -DMORPHOS -O3 -noixemul)

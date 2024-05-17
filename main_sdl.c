@@ -30,6 +30,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #else
 #include "SDL2/SDL.h"
+#ifdef AMIGAOS
+#include "GL/gl.h"
+#include "GL/glu.h"
+#include "exec/types.h"
+#include "interfaces/exec.h"
+#include "interfaces/ogles2.h"
+#include <proto/exec.h>
+#include <interfaces/bsdsocket.h>
+
+extern struct ExecIFace      *IExec;
+struct Library		  *Ogles2Base    = NULL;
+struct OglesIFace     *IOgles2       = NULL;
+struct SocketIFace *ISocket = NULL;
+struct Library *SocketBase = NULL;
+#endif
+
+#ifdef MORPHOS
+#include "proto/exec.h"
+#include "ppcinline/exec.h"
+
+struct Library *SDL2Base = NULL;
+struct Library *SocketBase = NULL;
+struct Library *TinyGLBase = NULL;
+#endif
+
 #endif
 
 #include <stdio.h>
@@ -37,11 +62,48 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static void Sys_AtExit (void)
 {
 	SDL_Quit();
+#ifdef AMIGAOS
+    if (IOgles2) {IExec->DropInterface((struct Interface*)IOgles2); IOgles2 = NULL;}
+    if (Ogles2Base) {IExec->CloseLibrary(Ogles2Base); Ogles2Base = NULL;}
+    if (ISocket)               IExec->DropInterface((struct Interface *)ISocket);
+    if (SocketBase)            IExec->CloseLibrary(SocketBase);
+#endif
+
+#ifdef MORPHOS
+    if (SocketBase)            CloseLibrary(SocketBase);
+    if (SDL2Base)              CloseLibrary(SDL2Base);
+    if (TinyGLBase)            CloseLibrary(TinyGLBase);
+#endif
 }
 
 static void Sys_InitSDL (void)
 {
 #if defined(USE_SDL2)
+#ifdef MORPHOS
+    SocketBase       = OpenLibrary("bsdsocket.library", 0);
+    if ((TinyGLBase = OpenLibrary("tinygl.library", 53))==NULL) {
+        printf("Can't open tinygl.library");
+        exit(-123);
+    }
+    if ((SDL2Base = OpenLibrary("sdl2.library", 53))==NULL) {
+        printf("Can't open sdl2.library");
+        exit(-123);
+    }
+
+#endif
+#ifdef AMIGAOS
+    IExec = (struct ExecIFace *)(*(struct ExecBase **)4)->MainInterface;
+    Ogles2Base = IExec->OpenLibrary("ogles2.library",0);
+    IOgles2 = (struct IOgles2 *) IExec->GetInterface(Ogles2Base, "main", 1, NULL);
+
+    if (!Ogles2Base) {
+        printf("Can't open ogles2.library");
+        exit(123);
+    }
+    SocketBase       = IExec->OpenLibrary("bsdsocket.library", 0L);
+    ISocket          = (struct SocketIFace *)IExec->GetInterface( SocketBase, "main", 1, NULL );
+#endif
+
 	SDL_version v;
 	SDL_version *sdl_version = &v;
 	SDL_GetVersion(&v);
@@ -66,48 +128,10 @@ static quakeparms_t	parms;
 #if defined(USE_SDL2) && defined(__APPLE__)
 #define main SDL_main
 #endif
-#ifdef AMIGAOS
-#include "GL/gl.h"
-#include "GL/glu.h"
-#include "exec/types.h"
-#include "interfaces/exec.h"
-#include "interfaces/ogles2.h"
-#include <proto/exec.h>
-#include <interfaces/bsdsocket.h>
 
-extern struct ExecIFace      *IExec;
-struct Library		  *Ogles2Base    = NULL;
-struct OglesIFace     *IOgles2       = NULL;
-struct SocketIFace *ISocket = NULL;
-struct Library *SocketBase = NULL;
-#endif
-
-#ifdef MORPHOS
-#include "proto/exec.h"
-#include "ppcinline/exec.h"
-
-struct Library *SocketBase = NULL;
-struct Library *MathTransBase = NULL;
-#endif
 
 int main(int argc, char *argv[])
 {
-#ifdef MORPHOS
-    SocketBase       = OpenLibrary("bsdsocket.library", 0);
-    MathTransBase       = OpenLibrary("mathtrans.library", 0);
-#endif
-#ifdef AMIGAOS
-    IExec = (struct ExecIFace *)(*(struct ExecBase **)4)->MainInterface;
-    Ogles2Base = IExec->OpenLibrary("ogles2.library",0);
-    IOgles2 = (struct IOgles2 *) IExec->GetInterface(Ogles2Base, "main", 1, NULL);
-
-    if (!Ogles2Base) {
-        printf("Can't open ogles2.library");
-        exit(123);
-    }
-    SocketBase       = IExec->OpenLibrary("bsdsocket.library", 0L);
-    ISocket          = (struct SocketIFace *)IExec->GetInterface( SocketBase, "main", 1, NULL );
-#endif
 
 	int		t;
 	double		time, oldtime, newtime;
@@ -193,15 +217,5 @@ int main(int argc, char *argv[])
 
 		oldtime = newtime;
 	}
-#ifdef AMIGAOS
-    if (IOgles2) {IExec->DropInterface((struct Interface*)IOgles2); IOgles2 = NULL;}
-    if (Ogles2Base) {IExec->CloseLibrary(Ogles2Base); Ogles2Base = NULL;}
-    if (ISocket)               IExec->DropInterface((struct Interface *)ISocket);
-    if (SocketBase)            IExec->CloseLibrary(SocketBase);
-#endif
-
-#ifdef MORPHOS
-    if (SocketBase)            CloseLibrary(SocketBase);
-#endif
 	return 0;
 }

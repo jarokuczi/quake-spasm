@@ -48,9 +48,7 @@ static cvar_t in_debugkeys = {"in_debugkeys", "0", CVAR_NONE};
 #include <IOKit/hidsystem/IOHIDParameter.h>
 #include <IOKit/hidsystem/event_status_driver.h>
 #endif
-#ifdef MORPHOS
-#include "proto/mathtrans.h"
-#endif
+
 // SDL2 Game Controller cvars
 cvar_t	joy_deadzone_look = { "joy_deadzone_look", "0.175", CVAR_ARCHIVE };
 cvar_t	joy_deadzone_move = { "joy_deadzone_move", "0.175", CVAR_ARCHIVE };
@@ -452,11 +450,8 @@ Returns the vector length of the given joystick axis
 */
 static vec_t IN_AxisMagnitude(joyaxis_t axis)
 {
-#ifdef MORPHOS
-    vec_t magnitude = SPSqrt((axis.x * axis.x) + (axis.y * axis.y));
-#else
+
 	vec_t magnitude = sqrtf((axis.x * axis.x) + (axis.y * axis.y));
-#endif
 	return magnitude;
 }
 
@@ -476,11 +471,7 @@ static joyaxis_t IN_ApplyEasing(joyaxis_t axis, float exponent)
 	
 	if (magnitude == 0)
 		return result;
-#ifdef MORPHOS
-	eased_magnitude = SPPow(magnitude, exponent);
-#else
 	eased_magnitude = powf(magnitude, exponent);
-#endif
 	result.x = axis.x * (eased_magnitude / magnitude);
 	result.y = axis.y * (eased_magnitude / magnitude);
 	return result;
